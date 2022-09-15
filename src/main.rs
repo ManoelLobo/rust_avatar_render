@@ -1,5 +1,6 @@
 use std::env;
 
+use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use svg::node::element::{
     path::{Command, Data, Position},
     Path, Rectangle,
@@ -103,7 +104,8 @@ impl Artist {
 
 fn parse(input: &str) -> Vec<Operation> {
     input
-        .bytes()
+        .as_bytes()
+        .par_iter()
         .map(|byte| match byte {
             b'0' => Home,
             b'1'..=b'9' => {
@@ -112,7 +114,7 @@ fn parse(input: &str) -> Vec<Operation> {
             }
             b'a' | b'b' | b'c' => TurnLeft,
             b'd' | b'e' | b'f' => TurnRight,
-            _ => Noop(byte),
+            _ => Noop(*byte),
         })
         .collect()
 }
